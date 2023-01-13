@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.SqlClient;
 
 namespace Library
@@ -6,7 +7,6 @@ namespace Library
     {
         SqlConnection? connection = null;
         SqlDataReader? reader = null;
-        SqlCommand? command = null;
 
         public Form1()
         {
@@ -84,7 +84,7 @@ WHERE Authors.FirstName = @p1 AND Categories.[Name] = @p2";
                 bookinfo_listbox.Items.Clear();
                 while (reader.Read())
                 {
-                    bookinfo_listbox.Items.Add(reader[1] + "  " + reader[2]);
+                    bookinfo_listbox.Items.Add(reader[1]);
                 }
             }
             catch (Exception ex)
@@ -92,6 +92,90 @@ WHERE Authors.FirstName = @p1 AND Categories.[Name] = @p2";
                 Console.WriteLine(ex.Message);
             }
             finally { connection?.Close(); reader?.Close(); }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                connection?.Open();
+
+                string? commandText = @"DELETE FROM Books WHERE [Name] = @p1";
+
+                using SqlCommand command = new SqlCommand(commandText, connection);
+
+                command.Parameters.AddWithValue("@p1", bookinfo_listbox.SelectedItem);
+
+                command.ExecuteNonQuery();
+
+                bookinfo_listbox.Items.Remove(bookinfo_listbox.SelectedItem);
+
+                MessageBox.Show("FK_Constraint ERROR");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally { connection?.Close(); reader?.Close(); }
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                connection?.Open();
+
+                string? commandText = @"INSERT INTO Authors(Id, FirstName, LastName) VALUES(18, @a1, @a2)";
+
+                using SqlCommand command = new SqlCommand(commandText, connection);
+
+                command.Parameters.AddWithValue("@a1", textBox1.Text);
+                command.Parameters.AddWithValue("@a2", textBox2.Text);
+
+                command.ExecuteNonQuery();
+
+                MessageBox.Show("Succesfully added!");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally { connection?.Close(); reader?.Close(); }
+
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                connection?.Open();
+
+                string? commandText = @"DELETE FROM AUTHORS WHERE [FirstName] = @a1 AND [LastName] = @a2";
+
+                using SqlCommand command = new SqlCommand(commandText, connection);
+
+                command.Parameters.AddWithValue("@a1", textBox1.Text);
+                command.Parameters.AddWithValue("@a2", textBox2.Text);
+
+                command.ExecuteNonQuery();
+
+                MessageBox.Show("Succesfully deleted!");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally { connection?.Close(); reader?.Close(); }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            author_cmbx.Items.Clear();
+            BringData();
         }
     }
 }
